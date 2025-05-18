@@ -119,14 +119,6 @@ npm run dev
 * Create/edit tasks as permitted by your role.
 * (Notifications pending async implementation)
 
-### Component Hierarchy (Next.js)
-
-* `/app/page.tsx`: Main dashboard
-* `/app/components/TaskList.tsx`: Renders task lists
-* `/app/components/TaskCard.tsx`: Task preview/edit
-* `/app/components/TaskForm.tsx`: Create/edit tasks
-* `/app/api/`: API endpoints
-
 ### Database Schema (MySQL)
 
 #### Tables:

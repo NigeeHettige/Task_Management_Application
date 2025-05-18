@@ -40,7 +40,7 @@ Three-tier client-server architecture:
 
 ```bash
 git clone https://github.com/your-repo/task-manager.git](https://github.com/NigeeHettige/Task_Management_Application.git
-cd task-manager
+cd Task_Management_Application
 ```
 
 2. **Install Dependencies**
@@ -149,4 +149,4 @@ npm run dev
 
 ---
 
-*This README serves as both a developer guide and a quick-start manual for users and contributors.*
+

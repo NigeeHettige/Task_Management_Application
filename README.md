@@ -39,7 +39,7 @@ Three-tier client-server architecture:
 1. **Clone the Repository**
 
 ```bash
-git clone https://github.com/your-repo/task-manager.git
+git clone https://github.com/your-repo/task-manager.git](https://github.com/NigeeHettige/Task_Management_Application.git
 cd task-manager
 ```
 

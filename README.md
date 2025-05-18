@@ -90,7 +90,7 @@ npm run start:dev
 * Frontend:
 
 ```bash
-cd client
+cd frontend
 npm run dev
 ```
 

@@ -46,8 +46,13 @@ cd task-manager
 2. **Install Dependencies**
 
 ```bash
+
+cd frontend
 npm install
-cd client
+```
+```bash
+
+cd backend
 npm install
 ```
 

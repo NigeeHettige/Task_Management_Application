@@ -135,7 +135,7 @@ npm run dev
 
 * Implement asynchronous notifications (e.g., RabbitMQ)
 * Add pagination & filtering in task lists
-* Enhanced UI/UX with Tailwind or Material UI
+* Enhanced UI/UX with Tailwind 
 * Add audit logs for task activity
 * Admin dashboard for user/role management
 

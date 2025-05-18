@@ -1,28 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { X } from "lucide-react";
-
+import { createTask, updateTask } from "@/utils/apiHelper";
+interface User {
+  name: string;
+  id: number;
+}
 interface TaskFormProps {
   setIsTaskFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  addTask?: (task: {
-    title: string;
-    priority: string;
-    description: string;
-    date: string;
-    user: string;
-    status: string;
-  }) => void;
-  updateTask?: (task: {
-    title: string;
-    priority: string;
-    description: string;
-    date: string;
-    user: string;
-    status: string;
-    id: string; // Add task ID for updates
-  }) => void;
-  task?: {
+
+  values?: {
     id: string;
     title: string;
     priority: string;
@@ -30,33 +18,27 @@ interface TaskFormProps {
     date: string;
     user: string;
     status: string;
-  }; // Optional task to edit
+  } | null;
+  edit?: boolean;
+  users: User[];
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ setIsTaskFormOpen, addTask, updateTask, task }) => {
-  const [formData, setFormData] = useState({
-    id: "",
-    title: "",
-    description: "",
-    priority: "Medium",
-    date: "",
-    user: "Demo User",
-    status: "todo",
-  });
+const TaskForm: React.FC<TaskFormProps> = ({
+  setIsTaskFormOpen,
 
-  useEffect(() => {
-    if (task) {
-      setFormData({
-        id: task.id || "",
-        title: task.title || "",
-        description: task.description || "",
-        priority: task.priority || "Medium",
-        date: task.date || "",
-        user: task.user || "Demo User",
-        status: task.status || "todo",
-      });
-    }
-  }, [task]);
+  values,
+  edit = false,
+  users,
+}) => {
+  const [formData, setFormData] = useState({
+    id: values?.id || "",
+    title: values?.title || "",
+    description: values?.description || "",
+    priority: values?.priority || "Medium",
+    date: values?.date || "",
+    user: values?.user || "",
+    status: values?.status || "todo",
+  });
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -65,22 +47,35 @@ const TaskForm: React.FC<TaskFormProps> = ({ setIsTaskFormOpen, addTask, updateT
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (task && updateTask) {
-      updateTask({ ...formData, id: task.id }); // Include ID for updates
-    } else if (addTask) {
-      addTask({
+
+    try {
+      const selectedUser = users.find((u) => u.name === formData.user);
+      if (!selectedUser && formData.user) {
+        throw new Error("Selected user not found");
+      }
+
+      const payload = {
         title: formData.title,
-        priority: formData.priority,
         description: formData.description,
-        date: formData.date,
-        user: formData.user,
+        priority: formData.priority.toLowerCase(),
+        assigned_to: selectedUser ? selectedUser.id : 0,
+        due_date: new Date(formData.date).toISOString(),
         status: formData.status,
-      });
+      };
+
+      if (edit) {
+        await updateTask(parseInt(formData.id, 10), payload);
+      } else {
+        await createTask(payload);
+      }
+
+      setIsTaskFormOpen(false);
+    } catch (error) {
+      console.error("Error:", error);
+      // Add user feedback here
     }
-    setIsTaskFormOpen(false);
   };
 
   return (
@@ -98,7 +93,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ setIsTaskFormOpen, addTask, updateT
         </button>
 
         <h3 className="font-semibold text-xl text-gray-800 mb-6 text-center">
-          {task ? "Edit Task" : "Create New Task"}
+          {edit ? "Edit Task" : "Create New Task"}
         </h3>
 
         <div className="flex flex-col w-full mb-4">
@@ -113,7 +108,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ setIsTaskFormOpen, addTask, updateT
             name="title"
             value={formData.title}
             onChange={handleChange}
-            className="border border-gray-300 w-full rounded-md h-10 px-3 text-base outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 w-full rounded-md h-10 px-3 text-custom_text outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
@@ -129,7 +124,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ setIsTaskFormOpen, addTask, updateT
             name="description"
             value={formData.description}
             onChange={handleChange}
-            className="border border-gray-300 w-full rounded-md h-24 px-3 py-2 text-base outline-none resize-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 w-full rounded-md h-24 px-3 py-2 text-custom_text outline-none resize-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -145,14 +140,15 @@ const TaskForm: React.FC<TaskFormProps> = ({ setIsTaskFormOpen, addTask, updateT
               name="user"
               value={formData.user}
               onChange={handleChange}
-              className="border border-gray-300 w-full rounded-md h-10 px-3 text-gray-900 text-base outline-none focus:ring-2 focus:ring-blue-500"
               required
+              className="text-custom_text"
             >
-              <option value="Demo User">Demo User</option>
-              <option value="Jane Doe">Jane Doe</option>
-              <option value="John Smith">John Smith</option>
-              <option value="Emily Johnson">Emily Johnson</option>
-              <option value="Michael Lee">Michael Lee</option>
+              <option value="">Select Assignee</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.name}>
+                  {user.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -169,10 +165,9 @@ const TaskForm: React.FC<TaskFormProps> = ({ setIsTaskFormOpen, addTask, updateT
                 name="date"
                 value={formData.date}
                 onChange={handleChange}
-                className="border border-gray-300 w-full rounded-md h-10 pl-3 pr-10 text-base outline-none focus:ring-2 focus:ring-blue-500"
+                className="border border-gray-300 w-full rounded-md h-10 pl-3 pr-10 text-custom_text outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
-             
             </div>
           </div>
         </div>
@@ -232,7 +227,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ setIsTaskFormOpen, addTask, updateT
             type="submit"
             className="w-1/2 py-2 rounded-md text-base text-white bg-blue-600 hover:bg-blue-700"
           >
-            {task ? "Update Task" : "Create Task"}
+            {edit ? "Update Task" : "Create Task"}
           </button>
         </div>
       </form>

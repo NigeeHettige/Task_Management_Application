@@ -9,16 +9,20 @@ import {
   Sidebar,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 function SideBar() {
   const nav = {
     Dashboard: { link: "/dashboard", icon: LayoutDashboardIcon },
     Task: { link: "/task", icon: CheckSquareIcon },
-
   };
 
   const pathname = usePathname();
+  const { logout } = useAuth();
 
+  const handleLogout =  () => {
+     logout();
+  };
   return (
     <div className=" fixed w-1/5 h-screen bg-white flex flex-col justify-between">
       {/* Top + Navigation Part */}
@@ -55,7 +59,16 @@ function SideBar() {
         <div className="w-full h-0.5 bg-line" />
         <div className="flex items-center gap-3 px-10 py-4 mt-4 cursor-pointer hover:bg-custom_background rounded-xl">
           <LogOutIcon className="text-custom_logout w-6 h-6" />
-          <Link href={"/"} className="text-custom_logout text-xl font-normal">Logout</Link>
+          <Link
+            href="/" // Default href (overridden by logout)
+            onClick={(e) => {
+              e.preventDefault(); // Prevent default navigation
+              handleLogout();
+            }}
+            className="text-custom_logout text-xl font-normal"
+          >
+            Logout
+          </Link>
         </div>
       </div>
     </div>
